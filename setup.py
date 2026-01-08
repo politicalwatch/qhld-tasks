@@ -22,6 +22,6 @@ setup(
         "requests==2.32.3",
         "six==1.16.0",
         "sparkpost==1.3.10",
-        "urllib3==2.2.3",
+        "urllib3==2.6.3",
     ],
 )
