@@ -1,14 +1,14 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="tipi-tasks",
+    name="qhld-tasks",
     version="1.0.0",
-    description="TIPI Tasks",
-    url="https://github.com/politicalwatch/tipi-tasks",
+    description="QHLD Tasks",
+    url="https://github.com/politicalwatch/qhld-tasks",
     author="danigm",
     packages=find_packages(),
     install_requires=[
-        "tipi-data @ git+https://github.com/politicalwatch/tipi-data.git",
+        "qhld-data @ git+https://github.com/politicalwatch/qhld-data.git",
         "celery[redis]==5.4.0",
         "certifi==2024.8.30",
         "chardet==5.2.0",
