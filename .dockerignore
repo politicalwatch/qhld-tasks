@@ -1,0 +1,9 @@
+.venv
+__pycache__
+*.pyc
+.coverage
+celerybeat-schedule
+celerybeat-schedule.db
+tipi_tasks.egg-info
+local_config.py
+.env
