@@ -5,7 +5,7 @@ from datetime import datetime, date, timedelta
 from celery import shared_task
 from celery.utils.log import get_task_logger
 
-from tipi_data.models.alert import Alert
+from tipi_data.repositories.alerts import Alerts
 
 from .mail import send_email
 from .sentence import make_sentence
@@ -32,10 +32,10 @@ def send_validation_emails():
     template = open(tmpl).read()
 
     # getting all users that've not validated searches
-    alerts = Alert.objects.filter(searches__validated=False)
+    alerts = Alerts.get_with_unvalidated_searches()
     for alert in alerts:
-        searches = alert.searches.filter(validated=False)
-        searches = searches.exclude(validation_email_sent=True)
+        searches = [s for s in alert.searches
+                    if not s.validated and s.validation_email_sent is not True]
         for search in searches:
             time_passed = (datetime.now() - search.created).days
             timeout = config.VALIDATION_TIMEOUT - time_passed
@@ -64,35 +64,35 @@ def send_validation_emails():
             )
             search.validation_email_sent = True
             search.validation_email_sent_date = datetime.now()
-        alert.save()
+        Alerts.save(alert)
 
 
 @shared_task
 def clean_emails():
-    alerts = Alert.objects.filter(searches__validated=False)
+    alerts = Alerts.get_with_unvalidated_searches()
     timeout = datetime.now() - timedelta(days=config.VALIDATION_TIMEOUT)
     for alert in alerts:
-        searches = alert.searches.filter(validated=False)
+        searches = [s for s in alert.searches if not s.validated]
         for search in searches:
             if search.created > timeout:
                 continue
-            alerts.update(pull__searches__hash=search.hash)
+            Alerts.remove_search(search.hash)
 
     # Remove emails without searches
-    Alert.objects.filter(searches__size=0).delete()
+    Alerts.delete_empty()
 
 
 @shared_task
 def clean_alerts_with_past_dates():
-    alerts = Alert.objects.filter(searches__validated=True)
+    alerts = Alerts.get_validated()
     for alert in alerts:
-        searches = alert.searches.filter(validated=True)
+        searches = [s for s in alert.searches if s.validated]
         for search in searches:
             search_obj = json.loads(search.search)
             if "enddate" in search_obj.keys():
                 if str(date.today()) < search_obj["enddate"]:
                     continue
-                alerts.update(pull__searches__hash=search.hash)
+                Alerts.remove_search(search.hash)
 
     # Remove emails without searches
-    Alert.objects.filter(searches__size=0).delete()
+    Alerts.delete_empty()

@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 import time
 from celery import shared_task
-from tipi_data.models.scanned import Scanned
+from tipi_data.repositories.scanned import Scanned
 from . import config
 import os
 from .mail import send_email
@@ -9,10 +9,7 @@ from .mail import send_email
 
 @shared_task
 def clean_documents():
-    scans = Scanned.objects.filter(expiration__lte=datetime.today())
-
-    for scan in scans:
-        scan.delete()
+    Scanned.delete_expired(datetime.today())
 
 
 @shared_task
@@ -21,7 +18,7 @@ def notify_new_documents():
     creation = time.mktime(datetime.now().timetuple()) - ONE_DAY_IN_SECONDS
     creation_date = datetime.fromtimestamp(creation)
 
-    scans = Scanned.objects.filter(created__gte=creation_date, verified=False)
+    scans = Scanned.get_unverified_since(creation_date)
 
     if len(scans) == 0:
         return

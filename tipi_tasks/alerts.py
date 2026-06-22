@@ -49,18 +49,18 @@ def send_alerts():
     all_topics = Topics.get_all()
     for alert in alerts:
         alert_to_send = {}
-        searches = alert.searches.filter(validated=True)
+        searches = [s for s in alert.searches if s.validated]
         for search in searches:
             try:
                 search_json = json.loads(search.search)
                 kb = search_json['knowledgebase']
-                initiatives = InitiativeAlerts.by_search(ast.literal_eval(search.dbsearch), kb).exclude('content')
+                initiatives = InitiativeAlerts.by_search(ast.literal_eval(search.dbsearch), kb, exclude_fields=['content'])
                 if kb not in alert_to_send:
                     alert_to_send[kb] = {
                         'id': alert.id,
                         'searches': []
                     }
-                if initiatives.count():
+                if len(initiatives):
                     alert_to_send[kb]['searches'].append({
                         'hash': search.hash,
                         'search_sentence': make_sentence(search.search),
