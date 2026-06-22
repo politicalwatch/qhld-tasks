@@ -1,6 +1,6 @@
 [project]
 name = "qhld-tasks"
-version = "1.1.0"
+version = "2.0.0"
 description = "QHLD Tasks"
 requires-python = ">=3.12"
 dependencies = [
@@ -15,7 +15,7 @@ dependencies = [
 dev = ["ipdb==0.13.13"]
 
 [tool.uv.sources]
-qhld-data = { git = "https://github.com/politicalwatch/qhld-data.git", tag = "v1.3.0" }
+qhld-data = { git = "https://github.com/politicalwatch/qhld-data.git", tag = "v2.0.0" }
 
 [build-system]
 requires = ["hatchling"]
