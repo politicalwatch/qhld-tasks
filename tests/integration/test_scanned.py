@@ -37,14 +37,6 @@ def test_notify_new_documents_noop_when_none(mongo_db, no_email):
     no_email.assert_not_called()
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG 1b6b061 (2024): notify_new_documents is broken end-to-end and cannot "
-    "send. It first crashes on a dead reference to config.TIPI_FRONTEND (never defined "
-    "in config.py), and even past that calls send_email with 4 args, omitting "
-    "mail_config (so the documents context lands in the mail_config slot). Both defects "
-    "predate the migrations. Fix later via TDD.",
-)
 def test_notify_new_documents_sends_with_documents_in_context(mongo_db, no_email):
     mongo_db.scanned.insert_one({
         "_id": "fresh",

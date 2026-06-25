@@ -31,9 +31,11 @@ def notify_new_documents():
     tmpl = os.path.join(dirname, "new_documents.html")
     template = open(tmpl).read()
 
+    mail_config = config.mail_config('escaner')
     context = {
-        "banner_url": config.ALERT_BANNER_URL,
-        "tipi_frontend": config.TIPI_FRONTEND,
+        "tipi_name": mail_config['NAME'],
+        "banner_url": mail_config['BANNER_URL'],
+        "tipi_frontend": mail_config['FRONTEND'],
         "documents": scans,
     }
 
@@ -41,5 +43,6 @@ def notify_new_documents():
         ["info@politicalwatch.es"],
         "Nuevos documentos no verificados",
         template,
+        mail_config,
         context,
     )
