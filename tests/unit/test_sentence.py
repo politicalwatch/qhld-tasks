@@ -55,11 +55,6 @@ def test_multiple_fields_no_trailing_comma():
     assert not result.rstrip(".").endswith(",")
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG bc073e46 (2019): _parse_field discards the _rreplace() return value, "
-    "so the last separator is never turned into ' y '. Fix later via TDD.",
-)
 def test_list_value_joins_last_item_with_y():
     # A multi-value field should read "A, B y C" (Spanish list conjunction), not "A, B, C".
     result = sentence_for({"tags": ["Clima", "Agua", "Empleo"]})

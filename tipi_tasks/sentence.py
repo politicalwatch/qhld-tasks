@@ -44,7 +44,7 @@ def _parse_field(key, value):
     if type(value) is list:
         value = ', '.join(value)
         if len(value.split(",")) > 1:
-            _rreplace(value, ", ", " y ", 1)
+            value = _rreplace(value, ", ", " y ", 1)
     return search_fields_mapper[key].format(value)
 
 def make_sentence(search):
