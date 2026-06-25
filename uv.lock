@@ -749,7 +749,7 @@ wheels = [
 [[package]]
 name = "qhld-data"
 version = "2.0.0"
-source = { git = "https://github.com/politicalwatch/qhld-data.git?tag=v2.0.0#0be3c4c0fcf8c06e049a43a742d3605845be4e63" }
+source = { git = "https://github.com/politicalwatch/qhld-data.git?tag=v2.0.0#f29dd6a3183c0dee664110e175445e916fd6534f" }
 dependencies = [
     { name = "pydantic" },
     { name = "pymongo" },
