@@ -1,6 +1,6 @@
 [project]
 name = "qhld-tasks"
-version = "2.0.0"
+version = "2.0.1"
 description = "QHLD Tasks"
 requires-python = ">=3.12"
 dependencies = [
@@ -19,7 +19,7 @@ dev = [
 ]
 
 [tool.uv.sources]
-qhld-data = { git = "https://github.com/politicalwatch/qhld-data.git", tag = "v2.0.0" }
+qhld-data = { git = "https://github.com/politicalwatch/qhld-data.git", tag = "v2.0.1" }
 
 [tool.pytest.ini_options]
 # Listed unit-first so the fast no-infra tests run before the container-backed ones.
