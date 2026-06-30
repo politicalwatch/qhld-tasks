@@ -36,6 +36,18 @@ def send_alerts():
                 flat_search[key] = value
         return urllib.parse.urlencode(flat_search)
 
+    def remove_duplicated_responses(initiatives):
+        title_counts = {}
+        for initiative in initiatives:
+            title_counts[initiative.title] = title_counts.get(initiative.title, 0) + 1
+        return [
+            initiative for initiative in initiatives
+            if not (
+                title_counts.get(initiative.title, 0) > 1
+                and getattr(initiative, 'initiative_type_alt', None) == 'Respuesta'
+            )
+        ]
+
     if getattr(config, 'TEMPLATE_DIR') and config.TEMPLATE_DIR:
         dirname = config.TEMPLATE_DIR
     else:
@@ -55,6 +67,7 @@ def send_alerts():
                 search_json = json.loads(search.search)
                 kb = search_json['knowledgebase']
                 initiatives = InitiativeAlerts.by_search(ast.literal_eval(search.dbsearch), kb, exclude_fields=['content'])
+                initiatives = remove_duplicated_responses(initiatives)
                 if kb not in alert_to_send:
                     alert_to_send[kb] = {
                         'id': alert.id,
