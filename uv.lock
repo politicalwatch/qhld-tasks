@@ -749,7 +749,7 @@ wheels = [
 [[package]]
 name = "qhld-data"
 version = "2.0.1"
-source = { git = "https://github.com/politicalwatch/qhld-data.git?tag=v2.0.1#6e729452476f7da24811de65b7002de324c0ca15" }
+source = { git = "https://github.com/politicalwatch/qhld-data.git?branch=feat%2Fparliamentary-speech-analysis#748ec35e4a2139f15914c32ad28472f92ae01a57" }
 dependencies = [
     { name = "pydantic" },
     { name = "pymongo" },
@@ -780,7 +780,7 @@ dev = [
 requires-dist = [
     { name = "celery", extras = ["redis"], specifier = "==5.6.3" },
     { name = "jinja2", specifier = ">=3.1.0" },
-    { name = "qhld-data", git = "https://github.com/politicalwatch/qhld-data.git?tag=v2.0.1" },
+    { name = "qhld-data", git = "https://github.com/politicalwatch/qhld-data.git?branch=feat%2Fparliamentary-speech-analysis" },
     { name = "regex", specifier = "==2026.5.9" },
     { name = "sparkpost", specifier = "==1.3.10" },
 ]
