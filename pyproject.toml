@@ -14,7 +14,7 @@ dependencies = [
 dev = [
     "ipdb==0.13.13",
     "pytest==9.1.1",
-    "testcontainers[mongodb]==4.14.2",
+    "testcontainers[mongodb]==4.15.0",
 ]
 
 [tool.uv.sources]
