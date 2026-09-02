@@ -89,8 +89,9 @@ def clean_alerts_with_past_dates():
         searches = [s for s in alert.searches if s.validated]
         for search in searches:
             search_obj = json.loads(search.search)
-            if "enddate" in search_obj.keys():
-                if str(date.today()) < search_obj["enddate"]:
+            enddate = search_obj.get("enddate")
+            if enddate:
+                if str(date.today()) < enddate:
                     continue
                 Alerts.remove_search(search.hash)
 

@@ -42,6 +42,11 @@ def test_clean_alerts_with_past_dates_removes_only_past_enddates(mongo_db):
              "search": json.dumps({"enddate": "2000-01-01"})},
             {"hash": "future", "validated": True,
              "search": json.dumps({"enddate": "2999-12-31"})},
+            # An open-ended alert: the form stores "" rather than omitting the key.
+            {"hash": "open", "validated": True,
+             "search": json.dumps({"enddate": ""})},
+            {"hash": "undated", "validated": True,
+             "search": json.dumps({"topic": "Sanidad"})},
         ],
     })
 
@@ -49,4 +54,4 @@ def test_clean_alerts_with_past_dates_removes_only_past_enddates(mongo_db):
 
     stored = mongo_db.alerts.find_one({"_id": "a1"})
     assert stored is not None
-    assert [s["hash"] for s in stored["searches"]] == ["future"]
+    assert [s["hash"] for s in stored["searches"]] == ["future", "open", "undated"]
