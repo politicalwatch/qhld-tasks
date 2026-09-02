@@ -9,19 +9,19 @@ app = Celery("tasks", broker=config.BROKER, backend=config.RESULT_BACKEND)
 
 beat_schedule = {
     "scanned.clean-documents": {
-        "task": "scanned.clean_documents",
+        "task": "tipi_tasks.scanned.clean_documents",
         "schedule": timedelta(hours=12),
     },
     "scanned.notify-new-documents": {
-        "task": "scanned.notify_new_documents",
+        "task": "tipi_tasks.scanned.notify_new_documents",
         "schedule": timedelta(hours=24),
     },
     "validate.clean_emails": {
-        "task": "validate.clean_emails",
+        "task": "tipi_tasks.validate.clean_emails",
         "schedule": timedelta(seconds=config.CLEAN_EMAILS_TIMEOUT),
     },
     "validate.clean_alerts_with_past_dates": {
-        "task": "validate.clean_alerts_with_past_dates",
+        "task": "tipi_tasks.validate.clean_alerts_with_past_dates",
         "schedule": timedelta(seconds=config.CLEAN_EMAILS_TIMEOUT),
     },
 }
