@@ -9,7 +9,7 @@ from tipi_data.repositories.alerts import Alerts
 
 from .mail import send_email
 from .sentence import make_sentence
-from . import config
+from .infrastructure.config.settings import get_mail_settings, get_settings
 
 
 log = get_task_logger(__name__)
@@ -23,10 +23,9 @@ def get_project_name(kb):
 
 @shared_task
 def send_validation_emails():
-    if getattr(config, "TEMPLATE_DIR") and config.TEMPLATE_DIR:
-        dirname = config.TEMPLATE_DIR
-    else:
-        dirname = os.path.join(os.path.dirname(__file__), "templates")
+    settings = get_settings()
+    dirname = settings.template_dir or os.path.join(
+        os.path.dirname(__file__), "templates")
 
     tmpl = os.path.join(dirname, "validation.html")
     template = open(tmpl).read()
@@ -38,28 +37,28 @@ def send_validation_emails():
                     if not s.validated and s.validation_email_sent is not True]
         for search in searches:
             time_passed = (datetime.now() - search.created).days
-            timeout = config.VALIDATION_TIMEOUT - time_passed
+            timeout = settings.validation_timeout - time_passed
             search_json = json.loads(search.search)
             kb = (
                 search_json["knowledgebase"]
                 if "knowledgebase" in search_json
                 else "politicas"
             )
-            mail_config = config.mail_config(kb)
+            mail_settings = get_mail_settings(kb)
             context = {
                 "tipi_name": get_project_name(kb),
-                "tipi_email": mail_config["FROM"],
+                "tipi_email": mail_settings.sender,
                 "search_sentence": make_sentence(search.search),
                 "validate_url": "{}/emails/validate/{}/{}".format(
-                    mail_config["BACKEND"], alert.id, search.hash
+                    mail_settings.backend, alert.id, search.hash
                 ),
                 "timeout": timeout,
             }
             send_email(
                 [alert.email],
-                mail_config["VALIDATION_SUBJECT"],
+                mail_settings.validation_subject,
                 template,
-                mail_config,
+                mail_settings,
                 context,
             )
             search.validation_email_sent = True
@@ -70,7 +69,7 @@ def send_validation_emails():
 @shared_task
 def clean_emails():
     alerts = Alerts.get_with_unvalidated_searches()
-    timeout = datetime.now() - timedelta(days=config.VALIDATION_TIMEOUT)
+    timeout = datetime.now() - timedelta(days=get_settings().validation_timeout)
     for alert in alerts:
         searches = [s for s in alert.searches if not s.validated]
         for search in searches:

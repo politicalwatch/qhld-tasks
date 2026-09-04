@@ -14,7 +14,7 @@ import pickle
 import regex
 import pytest
 
-from tipi_tasks import config
+from tipi_tasks.infrastructure.config.settings import get_settings
 from tipi_tasks.tagger import extract_tags_from_text
 
 pytestmark = pytest.mark.unit
@@ -106,7 +106,7 @@ def test_excerpt_passthrough_when_short():
 
 def test_excerpt_truncated_when_long():
     blob = encode_tags([make_tag("Medio ambiente", "Clima", "Clima", "clima")])
-    size = config.SCANNED_TEXT_EXCERPT_SIZE
+    size = get_settings().scanned_text_excerpt_size
     text = "clima " + "x" * (size + 100)
 
     result = extract_tags_from_text(text, blob)

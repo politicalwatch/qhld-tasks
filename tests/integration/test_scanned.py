@@ -50,7 +50,7 @@ def test_notify_new_documents_sends_with_documents_in_context(mongo_db, no_email
     no_email.assert_called_once()
     args, _ = no_email.call_args
     # Correct signature mirrors the other callers:
-    # (recipients, subject, template, mail_config, context).
+    # (recipients, subject, template, mail_settings, context).
     assert args[0] == ["info@politicalwatch.es"]
     context = args[4]
     assert len(context["documents"]) == 1

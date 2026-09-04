@@ -5,7 +5,7 @@ import regex
 from celery import shared_task
 
 from tipi_tasks import app
-from . import config
+from .infrastructure.config.settings import get_settings
 
 
 def __append_tag_to_founds(tags_found, new_tag):
@@ -49,12 +49,11 @@ def extract_tags_from_text(text, tags):
             except regex.error as e:
                 print(e)
 
+    excerpt_size = get_settings().scanned_text_excerpt_size
     return {
         "status": "SUCCESS",
         "excerpt": (
-            text
-            if len(text) <= config.SCANNED_TEXT_EXCERPT_SIZE
-            else text[: config.SCANNED_TEXT_EXCERPT_SIZE - 3] + " [...]"
+            text if len(text) <= excerpt_size else text[: excerpt_size - 3] + " [...]"
         ),
         "result": {
             "topics": sorted(list(set([tag["topic"] for tag in tags_found]))),

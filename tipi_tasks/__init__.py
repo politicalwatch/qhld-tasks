@@ -2,10 +2,12 @@ from datetime import timedelta
 
 from celery import Celery
 
-from . import config
+from .infrastructure.config.settings import get_settings
 
 
-app = Celery("tasks", broker=config.BROKER, backend=config.RESULT_BACKEND)
+settings = get_settings()
+
+app = Celery("tasks", broker=settings.broker, backend=settings.result_backend)
 
 beat_schedule = {
     "scanned.clean-documents": {
@@ -18,11 +20,11 @@ beat_schedule = {
     },
     "validate.clean_emails": {
         "task": "validate.clean_emails",
-        "schedule": timedelta(seconds=config.CLEAN_EMAILS_TIMEOUT),
+        "schedule": timedelta(seconds=settings.clean_emails_timeout),
     },
     "validate.clean_alerts_with_past_dates": {
         "task": "validate.clean_alerts_with_past_dates",
-        "schedule": timedelta(seconds=config.CLEAN_EMAILS_TIMEOUT),
+        "schedule": timedelta(seconds=settings.clean_emails_timeout),
     },
 }
 
@@ -31,7 +33,7 @@ app.conf.beat_schedule = beat_schedule
 
 def init():
     global app
-    app = Celery("tasks", broker=config.BROKER, backend=config.RESULT_BACKEND)
+    app = Celery("tasks", broker=settings.broker, backend=settings.result_backend)
     app.conf.beat_schedule = beat_schedule
 
 

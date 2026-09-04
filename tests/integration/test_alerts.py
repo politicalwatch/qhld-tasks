@@ -27,7 +27,7 @@ def test_send_alerts_dispatches_one_email_with_matching_initiatives(
     # One validated alert, one kb (politicas) with matches -> exactly one email.
     no_email.assert_called_once()
     args, _ = no_email.call_args
-    # send_email([alert.email], subject, template, mail_config, context)
+    # send_email([alert.email], subject, template, mail_settings, context)
     assert args[0] == [ALERT_EMAIL]
 
     context = args[4]

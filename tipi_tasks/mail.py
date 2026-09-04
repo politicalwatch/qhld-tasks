@@ -1,6 +1,6 @@
 import sparkpost
 from jinja2 import Environment, select_autoescape, Template
-from . import config
+from .infrastructure.config.settings import MailSettings, get_settings
 
 status_mapping = {
     "Aprobada": "completed",
@@ -53,16 +53,16 @@ env = Environment(autoescape=select_autoescape(['html', 'xml']))
 env.tests['in'] = is_in
 env.tests['not_in'] = is_not_in
 
-def sparkpost_email(recipients, subject, template, mail_config, context={}):
+def sparkpost_email(recipients, subject, template, mail_settings: MailSettings, context={}):
     template = env.from_string(template)
     try:
         html = template.render(**context, status_mapping=status_mapping, ods_color_mapping=ods_color_mapping, legislative_type_ids=legislative_type_ids, political_orientiation_type_ids=political_orientiation_type_ids)
     except Exception as e:
         print(f"Template error: {e}")
-    sp = sparkpost.SparkPost(mail_config['API'])
+    sp = sparkpost.SparkPost(mail_settings.api)
     sp.transmissions.send(
         recipients=recipients,
-        from_email='{} <{}>'.format(mail_config['NAME'], mail_config['FROM']),
+        from_email='{} <{}>'.format(mail_settings.name, mail_settings.sender),
         subject=subject,
         html=html,
         track_opens=True,
@@ -70,9 +70,9 @@ def sparkpost_email(recipients, subject, template, mail_config, context={}):
     )
 
 
-def debug_email(recipients, subject, template, mail_config, context={}):
+def debug_email(recipients, subject, template, mail_settings: MailSettings, context={}):
     print("New email:")
-    print("from: {}".format(mail_config['FROM']))
+    print("from: {}".format(mail_settings.sender))
     print("to: {}".format(recipients))
     print("subject: {}".format(subject))
     template = Template(template)
@@ -80,6 +80,6 @@ def debug_email(recipients, subject, template, mail_config, context={}):
 
 
 def send_email(*args, **kwargs):
-    if config.DEBUG:
+    if get_settings().debug:
         return debug_email(*args, **kwargs)
     return sparkpost_email(*args, **kwargs)

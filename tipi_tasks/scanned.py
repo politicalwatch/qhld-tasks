@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import time
 from celery import shared_task
 from tipi_data.repositories.scanned import Scanned
-from . import config
+from .infrastructure.config.settings import get_mail_settings, get_settings
 import os
 from .mail import send_email
 
@@ -23,19 +23,17 @@ def notify_new_documents():
     if len(scans) == 0:
         return
 
-    if getattr(config, "TEMPLATE_DIR") and config.TEMPLATE_DIR:
-        dirname = config.TEMPLATE_DIR
-    else:
-        dirname = os.path.join(os.path.dirname(__file__), "templates")
+    dirname = get_settings().template_dir or os.path.join(
+        os.path.dirname(__file__), "templates")
 
     tmpl = os.path.join(dirname, "new_documents.html")
     template = open(tmpl).read()
 
-    mail_config = config.mail_config('escaner')
+    mail_settings = get_mail_settings('escaner')
     context = {
-        "tipi_name": mail_config['NAME'],
-        "banner_url": mail_config['BANNER_URL'],
-        "tipi_frontend": mail_config['FRONTEND'],
+        "tipi_name": mail_settings.name,
+        "banner_url": mail_settings.banner_url,
+        "tipi_frontend": mail_settings.frontend,
         "documents": scans,
     }
 
@@ -43,6 +41,6 @@ def notify_new_documents():
         ["info@politicalwatch.es"],
         "Nuevos documentos no verificados",
         template,
-        mail_config,
+        mail_settings,
         context,
     )

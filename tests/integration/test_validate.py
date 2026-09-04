@@ -7,7 +7,7 @@ from datetime import date, datetime, timedelta
 
 import pytest
 
-from tipi_tasks import config
+from tipi_tasks.infrastructure.config.settings import get_settings
 from tipi_tasks.validate import clean_alerts_with_past_dates, clean_emails
 
 pytestmark = pytest.mark.integration
@@ -15,7 +15,7 @@ pytestmark = pytest.mark.integration
 
 def test_clean_emails_removes_timed_out_searches_and_empty_alerts(mongo_db):
     now = datetime.now()
-    stale = now - timedelta(days=config.VALIDATION_TIMEOUT + 10)
+    stale = now - timedelta(days=get_settings().validation_timeout + 10)
     recent = now - timedelta(days=1)
     mongo_db.alerts.insert_many([
         # Only search is unvalidated + past the timeout -> removed -> alert emptied -> deleted.

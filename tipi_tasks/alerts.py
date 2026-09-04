@@ -12,7 +12,7 @@ from tipi_data.repositories.topics import Topics
 
 from .mail import send_email
 from .sentence import make_sentence
-from . import config
+from .infrastructure.config.settings import get_mail_settings, get_settings
 
 
 log = get_task_logger(__name__)
@@ -48,10 +48,8 @@ def send_alerts():
             )
         ]
 
-    if getattr(config, 'TEMPLATE_DIR') and config.TEMPLATE_DIR:
-        dirname = config.TEMPLATE_DIR
-    else:
-        dirname = os.path.join(os.path.dirname(__file__), 'templates')
+    dirname = get_settings().template_dir or os.path.join(
+        os.path.dirname(__file__), 'templates')
 
     tmpl_qhld = os.path.join(dirname, 'alert_qhld.html')
     tmpl_p2030 = os.path.join(dirname, 'alert_p2030.html')
@@ -108,21 +106,21 @@ def send_alerts():
                 elif kb == 'ods':
                     template = template_p2030
 
-                mail_config = config.mail_config(kb)
+                mail_settings = get_mail_settings(kb)
                 context = {
-                    'tipi_name': mail_config['NAME'],
-                    'tipi_description': mail_config['DESCRIPTION'],
-                    'tipi_color': mail_config['COLOR'],
-                    'tipi_email': mail_config['EMAIL'],
-                    'tipi_frontend': mail_config['FRONTEND'],
-                    'tipi_backend': mail_config['BACKEND'],
-                    'banner_url': mail_config['BANNER_URL'],
+                    'tipi_name': mail_settings.name,
+                    'tipi_description': mail_settings.description,
+                    'tipi_color': mail_settings.color,
+                    'tipi_email': mail_settings.email,
+                    'tipi_frontend': mail_settings.frontend,
+                    'tipi_backend': mail_settings.backend,
+                    'banner_url': mail_settings.banner_url,
                     'alert': alert_to_send[kb]
                 }
                 send_email([alert.email],
-                           mail_config['ALERT_SUBJECT'],
+                           mail_settings.alert_subject,
                            template,
-                           mail_config,
+                           mail_settings,
                            context)
             except Exception as e:
                 log.error(f"{alert.email}: {e}")
