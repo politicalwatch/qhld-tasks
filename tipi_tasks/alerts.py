@@ -36,15 +36,19 @@ def send_alerts():
                 flat_search[key] = value
         return urllib.parse.urlencode(flat_search)
 
+    def is_response(initiative):
+        return getattr(initiative, 'initiative_type_alt', None) == 'Respuesta'
+
     def remove_duplicated_responses(initiatives):
-        title_counts = {}
-        for initiative in initiatives:
-            title_counts[initiative.title] = title_counts.get(initiative.title, 0) + 1
+        question_references = {
+            initiative.reference for initiative in initiatives
+            if not is_response(initiative) and getattr(initiative, 'reference', None)
+        }
         return [
             initiative for initiative in initiatives
             if not (
-                title_counts.get(initiative.title, 0) > 1
-                and getattr(initiative, 'initiative_type_alt', None) == 'Respuesta'
+                is_response(initiative)
+                and getattr(initiative, 'reference', None) in question_references
             )
         ]
 

@@ -38,15 +38,22 @@ def test_send_alerts_dispatches_one_email_with_matching_initiatives(
     assert mongo_db.initiatives_alerts.count_documents({}) == 0
 
 
-def test_send_alerts_drops_response_when_title_is_duplicated(mongo_db, no_email):
-    """A "Respuesta" sharing its ``title`` with another initiative in the same group
-    is dropped before the email is built; a "Respuesta" with a unique title is kept.
+def test_send_alerts_drops_response_when_its_question_is_present(mongo_db, no_email):
+    """A "Respuesta" is dropped before the email is built only when the question it
+    answers (another initiative with the same ``reference``) is in the same group.
+    Titles play no part.
 
-    Seeded from ``initiatives_alerts_respuesta.json`` (three initiatives, all tagged
-    ``politicas`` / "España vaciada" so the demo alert's ``dbsearch`` matches them):
-    - ``184-000010`` — the question, kept.
-    - ``184-000010-respuesta`` — same title as ``184-000010``, ``Respuesta``: dropped.
-    - ``184-000012`` — ``Respuesta`` with a unique title: kept.
+    Seeded from ``initiatives_alerts_deduplication.json`` (all tagged ``politicas`` /
+    "España vaciada" so the demo alert's ``dbsearch`` matches them):
+    - ``184-000010`` / ``184-000010-respuesta`` — question and its response with the
+      same title: the response is dropped.
+    - ``184-000012`` — ``Respuesta`` whose question is not in the group: kept.
+    - ``184-000020`` / ``184-000020-respuesta`` — same reference, slightly different
+      titles: the response is dropped.
+    - ``184-000030`` / ``184-000031`` — a question and a ``Respuesta`` sharing a title
+      but not a reference: both kept.
+    - ``184-000040`` / ``184-000041`` — two ``Respuesta`` sharing a title, no question:
+      both kept.
     """
     load_json_dump(mongo_db, "alerts", "alerts.json")
     load_json_dump(
@@ -58,4 +65,12 @@ def test_send_alerts_drops_response_when_title_is_duplicated(mongo_db, no_email)
     no_email.assert_called_once()
     context = no_email.call_args[0][4]
     initiatives = context["alert"]["searches"][0]["initiatives"]
-    assert {i["id"] for i in initiatives} == {"184-000010", "184-000012"}
+    assert {i["id"] for i in initiatives} == {
+        "184-000010",
+        "184-000012",
+        "184-000020",
+        "184-000030",
+        "184-000031",
+        "184-000040",
+        "184-000041",
+    }
