@@ -1,6 +1,6 @@
 """Integration test for ``send_alerts`` against a throwaway MongoDB, seeded with the
 **real demo dumps** (``tests/fixtures/``). ``send_email`` is replaced by the
-``no_email`` recording mock — no SparkPost, no network — so this asserts the alert is
+``no_email`` recording mock — no Mailtrap, no network — so this asserts the alert is
 assembled and dispatched correctly without sending anything.
 
 The demo data: one validated alert (subscribed to topic "España vaciada", kb

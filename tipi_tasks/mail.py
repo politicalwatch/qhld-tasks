@@ -1,4 +1,4 @@
-import sparkpost
+import mailtrap as mt
 from jinja2 import Environment, select_autoescape, Template
 from . import config
 
@@ -53,21 +53,21 @@ env = Environment(autoescape=select_autoescape(['html', 'xml']))
 env.tests['in'] = is_in
 env.tests['not_in'] = is_not_in
 
-def sparkpost_email(recipients, subject, template, mail_config, context={}):
+def mailtrap_email(recipients, subject, template, mail_config, context={}):
     template = env.from_string(template)
     try:
         html = template.render(**context, status_mapping=status_mapping, ods_color_mapping=ods_color_mapping, legislative_type_ids=legislative_type_ids, political_orientiation_type_ids=political_orientiation_type_ids)
     except Exception as e:
         print(f"Template error: {e}")
-    sp = sparkpost.SparkPost(mail_config['API'])
-    sp.transmissions.send(
-        recipients=recipients,
-        from_email='{} <{}>'.format(mail_config['NAME'], mail_config['FROM']),
+    client = mt.MailtrapClient(token=mail_config['API'])
+    mail = mt.Mail(
+        sender=mt.Address(email=mail_config['FROM'], name=mail_config['NAME']),
+        to=[mt.Address(email=recipient) for recipient in recipients],
         subject=subject,
         html=html,
-        track_opens=True,
-        track_clicks=True
     )
+    # Returns {"success": True, "message_ids": [...]}; failures raise mt.APIError.
+    return client.send(mail)
 
 
 def debug_email(recipients, subject, template, mail_config, context={}):
@@ -82,4 +82,4 @@ def debug_email(recipients, subject, template, mail_config, context={}):
 def send_email(*args, **kwargs):
     if config.DEBUG:
         return debug_email(*args, **kwargs)
-    return sparkpost_email(*args, **kwargs)
+    return mailtrap_email(*args, **kwargs)

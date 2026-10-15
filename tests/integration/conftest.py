@@ -81,7 +81,7 @@ def seed_alert_dumps(mongo_db):
 @pytest.fixture
 def no_email(monkeypatch):
     """Replace the module-bound ``send_email`` in every task module with a single
-    recording mock — no SparkPost, no network. The tasks do
+    recording mock — no Mailtrap, no network. The tasks do
     ``from .mail import send_email``, so each module holds its own reference that must
     be patched individually. Returns the shared mock so tests can assert call args."""
     import tipi_tasks.alerts
